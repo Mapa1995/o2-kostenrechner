@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>O2 Kostenrechner</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+  <div class="p-4 max-w-7xl mx-auto bg-blue-100 rounded-lg shadow-md mt-8">
+    <!-- Titel und Buttons -->
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-3xl font-bold text-blue-800">
+        O2 Kostenrechner
+      </h1>
+      <div class="flex space-x-2">
+        <button id="vergleichButton" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+          Vergleich
+        </button>
+        <button id="zuruecksetzenButton" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+          Zurücksetzen
+        </button>
+      </div>
+    </div>
+    
+    <!-- Calculator Container -->
+    <div id="calculatorsContainer" class="flex flex-col gap-8">
+      <!-- Hauptangebot Calculator -->
+      <div class="calculator p-4 bg-white rounded shadow w-full">
+        <!-- Effektivpreis-Berechner -->
+        <div class="effektivpreisBerechner mb-8">
+          <h2 class="text-2xl font-bold mb-4 text-blue-800">1. Effektivpreis-Berechner</h2>
+          
+          <!-- Effektivpreis-Berechner Felder -->
+          <div class="mb-4">
+            <label class="block mb-2 font-semibold">Monatsgebühr:</label>
+            <div class="flex items-center space-x-2">
+              <input
+                type="number"
+                class="border p-2 w-1/3 rounded monatsgebuehr"
+                placeholder="Monatsgebühr in €"
+              />
+              <span>x</span>
+              <span>24</span>
+              <span>=</span>
+              <span class="font-bold gesamtbetrag">0.00 €</span>
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block mb-2 font-semibold">Gesamtbetrag + Zuzahlung:</label>
+            <div class="flex items-center space-x-2">
+              <input
+                type="number"
+                class="border p-2 w-1/3 bg-gray-100 rounded gesamtbetragInput"
+                readonly
+              />
+              <span>+</span>
+              <input
+                type="number"
+                class="border p-2 w-1/3 rounded zuzahlung"
+                placeholder="Zuzahlung in €"
+              />
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <div class="flex items-center space-x-2">
+              <span class="zwischenSumme">0.00 €</span>
+              <span>-</span>
+              <input
+                type="number"
+                class="border p-2 w-1/3 rounded subtraktion"
+                placeholder="Subtraktion in €"
+              />
+              <span>=</span>
+              <span class="font-bold zwischenergebnis">0.00 €</span>
+            </div>
+          </div>
+          
+          <div class="mt-6 mb-4 text-center">
+            <span class="text-lg font-bold">Effektivpreis pro Monat:</span>
+            <span class="ml-2 text-2xl font-bold text-green-600 effektivpreis">
+              0.00 €
+            </span>
+            <span class="ml-2 text-2xl">😊</span>
+          </div>
+        </div>
+        
+        <!-- Mehrkosten-Berechner -->
+        <div class="mehrkostenBerechner">
+          <h2 class="text-2xl font-bold mb-4 text-blue-800">2. Mehrkosten-Berechner</h2>
+          
+          <div class="mb-4">
+            <label class="block mb-2 font-semibold">Monatsgebühr:</label>
+            <div class="flex items-center space-x-2">
+              <input
+                type="number"
+                class="border p-2 w-1/3 rounded mehrkostenMonatsgebuehr"
+                placeholder="Monatsgebühr in €"
+              />
+              <span>x</span>
+              <input
+                type="number"
+                class="border p-2 w-24 rounded multiplikationsfaktor"
+                value="24"
+              />
+              <span>=</span>
+              <span class="font-bold mehrkostenZwischenergebnis">0.00 €</span>
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block mb-2 font-semibold">Zwischenergebnis + Barkaufpreis:</label>
+            <div class="flex items-center space-x-2">
+              <input
+                type="number"
+                class="border p-2 w-1/3 bg-gray-100 rounded mehrkostenZwischenergebnisInput"
+                readonly
+              />
+              <span>+</span>
+              <input
+                type="number"
+                class="border p-2 w-1/3 rounded barkaufpreis"
+                placeholder="Barkaufpreis in €"
+              />
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block mb-2 font-semibold">Ergebnis / Vertragslaufzeit:</label>
+            <div class="flex items-center space-x-2">
+              <span class="mehrkostenZwischensumme">0.00 €</span>
+              <span>/</span>
+              <input
+                type="number"
+                class="border p-2 w-24 rounded vertragslaufzeit"
+                value="24"
+              />
+            </div>
+          </div>
+          
+          <div class="mt-6 mb-4 text-center">
+            <span class="text-lg font-bold">Mehrkosten pro Monat:</span>
+            <span class="ml-2 text-2xl font-bold text-red-600 mehrkosten">
+              0.00 €
+            </span>
+            <span class="ml-2 text-2xl">😢</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tabellen Button -->
+    <div class="flex justify-center mt-8">
+      <button id="tabelleButton" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+        Tabelle
+      </button>
+    </div>
+    
+    <!-- Chart Modal -->
+    <div id="chartModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+      <div class="bg-white rounded-lg shadow-lg w-11/12 md:w-3/4 lg:w-1/2 p-6 relative">
+        <button id="closeChartModal" class="absolute top-2 right-2 text-red-500 hover:text-red-700 text-3xl font-bold">&times;</button>
+        <h2 class="text-2xl font-bold mb-4 text-green-800 text-center">Vergleichstabelle</h2>
+        <canvas id="vergleichChart" class="bg-gray-100 p-4 rounded"></canvas>
+      </div>
+    </div>
+    
+    <!-- JavaScript zur Berechnung und Funktionalität -->
+    <script>
+      // Funktion zur Berechnung der Effektivpreis-Berechner
+      function berechneEffektivpreis(calculator) {
+        const monatsgebuehrInput = calculator.querySelector('.monatsgebuehr');
+        const gesamtbetragSpan = calculator.querySelector('.gesamtbetrag');
+        const gesamtbetragInput = calculator.querySelector('.gesamtbetragInput');
+        const zuzahlungInput = calculator.querySelector('.zuzahlung');
+        const subtraktionInput = calculator.querySelector('.subtraktion');
+        const zwischenergebnisSpan = calculator.querySelector('.zwischenergebnis');
+        const effektivpreisSpan = calculator.querySelector('.effektivpreis');
+        const zwischenSummeSpan = calculator.querySelector('.zwischenSumme');
+  
+        const monatsgebuehr = parseFloat(monatsgebuehrInput.value) || 0;
+        const gesamtbetrag = monatsgebuehr * 24;
+        gesamtbetragSpan.textContent = gesamtbetrag.toFixed(2) + ' €';
+        gesamtbetragInput.value = gesamtbetrag.toFixed(2);
+  
+        const zuzahlung = parseFloat(zuzahlungInput.value) || 0;
+        const subtraktion = parseFloat(subtraktionInput.value) || 0;
+        const zwischenergebnis = gesamtbetrag + zuzahlung - subtraktion;
+        zwischenergebnisSpan.textContent = zwischenergebnis.toFixed(2) + ' €';
+        if (zwischenSummeSpan) {
+          zwischenSummeSpan.textContent = zwischenergebnis.toFixed(2) + ' €';
+        }
+  
+        const effektivpreis = zwischenergebnis / 24;
+        effektivpreisSpan.textContent = effektivpreis.toFixed(2) + ' €';
+      }
+      
+      // Funktion zur Berechnung der Mehrkosten-Berechner
+      function berechneMehrkosten(calculator) {
+        const mehrkostenMonatsgebuehrInput = calculator.querySelector('.mehrkostenMonatsgebuehr');
+        const multiplikationsfaktorInput = calculator.querySelector('.multiplikationsfaktor');
+        const mehrkostenZwischenergebnisSpan = calculator.querySelector('.mehrkostenZwischenergebnis');
+        const mehrkostenZwischenergebnisInput = calculator.querySelector('.mehrkostenZwischenergebnisInput');
+        const barkaufpreisInput = calculator.querySelector('.barkaufpreis');
+        const vertragslaufzeitInput = calculator.querySelector('.vertragslaufzeit');
+        const mehrkostenZwischensummeSpan = calculator.querySelector('.mehrkostenZwischensumme');
+        const mehrkostenSpan = calculator.querySelector('.mehrkosten');
+  
+        const mehrkostenMonatsgebuehr = parseFloat(mehrkostenMonatsgebuehrInput.value) || 0;
+        const multiplikationsfaktor = parseFloat(multiplikationsfaktorInput.value) || 1;
+        const mehrkostenZwischenergebnis = mehrkostenMonatsgebuehr * multiplikationsfaktor;
+        mehrkostenZwischenergebnisSpan.textContent = mehrkostenZwischenergebnis.toFixed(2) + ' €';
+        mehrkostenZwischenergebnisInput.value = mehrkostenZwischenergebnis.toFixed(2);
+  
+        const barkaufpreis = parseFloat(barkaufpreisInput.value) || 0;
+        const mehrkostenZwischensumme = mehrkostenZwischenergebnis + barkaufpreis;
+        mehrkostenZwischensummeSpan.textContent = mehrkostenZwischensumme.toFixed(2) + ' €';
+  
+        const vertragslaufzeit = parseFloat(vertragslaufzeitInput.value) || 1;
+        const mehrkosten = mehrkostenZwischensumme / vertragslaufzeit;
+        mehrkostenSpan.textContent = mehrkosten.toFixed(2) + ' €';
+      }
+      
+      // Funktion zum Hinzufügen von Event Listeners für einen Effektivpreis-Berechner
+      function addCalculatorEventListenersEffektivpreis(calculator) {
+        const monatsgebuehrInput = calculator.querySelector('.monatsgebuehr');
+        const zuzahlungInput = calculator.querySelector('.zuzahlung');
+        const subtraktionInput = calculator.querySelector('.subtraktion');
+  
+        monatsgebuehrInput.addEventListener('input', () => {
+          berechneEffektivpreis(calculator);
+          updateChart();
+        });
+        zuzahlungInput.addEventListener('input', () => {
+          berechneEffektivpreis(calculator);
+          updateChart();
+        });
+        subtraktionInput.addEventListener('input', () => {
+          berechneEffektivpreis(calculator);
+          updateChart();
+        });
+      }
+      
+      // Funktion zum Hinzufügen von Event Listeners für einen Mehrkosten-Berechner
+      function addCalculatorEventListenersMehrkosten(calculator) {
+        const mehrkostenMonatsgebuehrInput = calculator.querySelector('.mehrkostenMonatsgebuehr');
+        const multiplikationsfaktorInput = calculator.querySelector('.multiplikationsfaktor');
+        const barkaufpreisInput = calculator.querySelector('.barkaufpreis');
+        const vertragslaufzeitInput = calculator.querySelector('.vertragslaufzeit');
+  
+        mehrkostenMonatsgebuehrInput.addEventListener('input', () => {
+          berechneMehrkosten(calculator);
+          updateChart();
+        });
+        multiplikationsfaktorInput.addEventListener('input', () => {
+          berechneMehrkosten(calculator);
+          updateChart();
+        });
+        barkaufpreisInput.addEventListener('input', () => {
+          berechneMehrkosten(calculator);
+          updateChart();
+        });
+        vertragslaufzeitInput.addEventListener('input', () => {
+          berechneMehrkosten(calculator);
+          updateChart();
+        });
+      }
+      
+      // Funktion zum Erstellen eines neuen Effektivpreis-Berechners (Haupt oder Vergleich)
+      function createEffektivpreisBerechner(isComparison = false) {
+        const effektivpreisBerechner = document.createElement('div');
+        effektivpreisBerechner.classList.add('effektivpreisBerechner', 'mb-8');
+  
+        // Header für Vergleichsberechner
+        if (isComparison) {
+          const header = document.createElement('div');
+          header.classList.add('flex', 'justify-between', 'items-center', 'mb-4');
+          
+          const title = document.createElement('h2');
+          title.classList.add('text-2xl', 'font-bold', 'text-blue-800');
+          title.textContent = '1. Effektivpreis-Berechner (Vergleich)';
+          
+          const removeButton = document.createElement('button');
+          removeButton.classList.add('removeVergleich', 'bg-red-500', 'text-white', 'px-2', 'py-1', 'rounded', 'hover:bg-red-600');
+          removeButton.textContent = 'Entfernen';
+          
+          header.appendChild(title);
+          header.appendChild(removeButton);
+          
+          effektivpreisBerechner.appendChild(header);
+        } else {
+          const title = document.createElement('h2');
+          title.classList.add('text-2xl', 'font-bold', 'mb-4', 'text-blue-800');
+          title.textContent = '1. Effektivpreis-Berechner';
+          effektivpreisBerechner.appendChild(title);
+        }
+  
+        // Monatsgebühr
+        const monatsgebuehrDiv = document.createElement('div');
+        monatsgebuehrDiv.classList.add('mb-4');
+        
+        const monatsgebuehrLabel = document.createElement('label');
+        monatsgebuehrLabel.classList.add('block', 'mb-2', 'font-semibold');
+        monatsgebuehrLabel.textContent = 'Monatsgebühr:';
+        
+        const monatsgebuehrInputDiv = document.createElement('div');
+        monatsgebuehrInputDiv.classList.add('flex', 'items-center', 'space-x-2');
+        
+        const monatsgebuehrInput = document.createElement('input');
+        monatsgebuehrInput.type = 'number';
+        monatsgebuehrInput.classList.add('border', 'p-2', 'w-1/3', 'rounded', 'monatsgebuehr');
+        monatsgebuehrInput.placeholder = 'Monatsgebühr in €';
+        
+        const multiplySymbol1 = document.createElement('span');
+        multiplySymbol1.textContent = 'x';
+        
+        const factorSpan = document.createElement('span');
+        factorSpan.textContent = '24';
+        
+        const equalsSymbol1 = document.createElement('span');
+        equalsSymbol1.textContent = '=';
+        
+        const gesamtbetragSpan = document.createElement('span');
+        gesamtbetragSpan.classList.add('font-bold', 'gesamtbetrag');
+        gesamtbetragSpan.textContent = '0.00 €';
+        
+        monatsgebuehrInputDiv.appendChild(monatsgebuehrInput);
+        monatsgebuehrInputDiv.appendChild(multiplySymbol1);
+        monatsgebuehrInputDiv.appendChild(factorSpan);
+        monatsgebuehrInputDiv.appendChild(equalsSymbol1);
+        monatsgebuehrInputDiv.appendChild(gesamtbetragSpan);
+        
+        monatsgebuehrDiv.appendChild(monatsgebuehrLabel);
+        monatsgebuehrDiv.appendChild(monatsgebuehrInputDiv);
+        
+        effektivpreisBerechner.appendChild(monatsgebuehrDiv);
+        
+        // Gesamtbetrag + Zuzahlung
+        const gesamtbetragZuzahlungDiv = document.createElement('div');
+        gesamtbetragZuzahlungDiv.classList.add('mb-4');
+        
+        const gesamtbetragZuzahlungLabel = document.createElement('label');
+        gesamtbetragZuzahlungLabel.classList.add('block', 'mb-2', 'font-semibold');
+        gesamtbetragZuzahlungLabel.textContent = 'Gesamtbetrag + Zuzahlung:';
+        
+        const gesamtbetragZuzahlungInputDiv = document.createElement('div');
+        gesamtbetragZuzahlungInputDiv.classList.add('flex', 'items-center', 'space-x-2');
+        
+        const gesamtbetragInput = document.createElement('input');
+        gesamtbetragInput.type = 'number';
+        gesamtbetragInput.classList.add('border', 'p-2', 'w-1/3', 'bg-gray-100', 'rounded', 'gesamtbetragInput');
+        gesamtbetragInput.readOnly = true;
+        
+        const plusSymbol = document.createElement('span');
+        plusSymbol.textContent = '+';
+        
+        const zuzahlungInput = document.createElement('input');
+        zuzahlungInput.type = 'number';
+        zuzahlungInput.classList.add('border', 'p-2', 'w-1/3', 'rounded', 'zuzahlung');
+        zuzahlungInput.placeholder = 'Zuzahlung in €';
+        
+        gesamtbetragZuzahlungInputDiv.appendChild(gesamtbetragInput);
+        gesamtbetragZuzahlungInputDiv.appendChild(plusSymbol);
+        gesamtbetragZuzahlungInputDiv.appendChild(zuzahlungInput);
+        
+        gesamtbetragZuzahlungDiv.appendChild(gesamtbetragZuzahlungLabel);
+        gesamtbetragZuzahlungDiv.appendChild(gesamtbetragZuzahlungInputDiv);
+        
+        effektivpreisBerechner.appendChild(gesamtbetragZuzahlungDiv);
+        
+        // Zwischenergebnis - Subtraktion
+        const zwischenergebnisDiv = document.createElement('div');
+        zwischenergebnisDiv.classList.add('mb-4');
+        
+        const zwischenergebnisInputDiv = document.createElement('div');
+        zwischenergebnisInputDiv.classList.add('flex', 'items-center', 'space-x-2');
+        
+        const zwischenSummeSpan = document.createElement('span');
+        zwischenSummeSpan.classList.add('zwischenSumme');
+        zwischenSummeSpan.textContent = '0.00 €';
+        
+        const minusSymbol = document.createElement('span');
+        minusSymbol.textContent = '-';
+        
+        const subtraktionInput = document.createElement('input');
+        subtraktionInput.type = 'number';
+        subtraktionInput.classList.add('border', 'p-2', 'w-1/3', 'rounded', 'subtraktion');
+        subtraktionInput.placeholder = 'Subtraktion in €';
+        
+        const equalsSymbol2 = document.createElement('span');
+        equalsSymbol2.textContent = '=';
+        
+        const zwischenergebnisSpan = document.createElement('span');
+        zwischenergebnisSpan.classList.add('font-bold', 'zwischenergebnis');
+        zwischenergebnisSpan.textContent = '0.00 €';
+        
+        zwischenergebnisInputDiv.appendChild(zwischenSummeSpan);
+        zwischenergebnisInputDiv.appendChild(minusSymbol);
+        zwischenergebnisInputDiv.appendChild(subtraktionInput);
+        zwischenergebnisInputDiv.appendChild(equalsSymbol2);
+        zwischenergebnisInputDiv.appendChild(zwischenergebnisSpan);
+        
+        zwischenergebnisDiv.appendChild(zwischenergebnisInputDiv);
+        
+        effektivpreisBerechner.appendChild(zwischenergebnisDiv);
+        
+        // Effektivpreis pro Monat
+        const effektivpreisDiv = document.createElement('div');
+        effektivpreisDiv.classList.add('mt-6', 'mb-4', 'text-center');
+        
+        const effektivpreisLabel = document.createElement('span');
+        effektivpreisLabel.classList.add('text-lg', 'font-bold');
+        effektivpreisLabel.textContent = 'Effektivpreis pro Monat:';
+        
+        const effektivpreisSpan = document.createElement('span');
+        effektivpreisSpan.classList.add('ml-2', 'text-2xl', 'font-bold', 'text-green-600', 'effektivpreis');
+        effektivpreisSpan.textContent = '0.00 €';
+        
+        const smileySpan = document.createElement('span');
+        smileySpan.classList.add('ml-2', 'text-2xl');
+        smileySpan.textContent = '😊';
+        
+        effektivpreisDiv.appendChild(effektivpreisLabel);
+        effektivpreisDiv.appendChild(effektivpreisSpan);
+        effektivpreisDiv.appendChild(smileySpan);
+        
+        effektivpreisBerechner.appendChild(effektivpreisDiv);
+        
+        // Wenn es ein Vergleichsberechner ist, füge den Entfernen-Button hinzu
+        if (isComparison) {
+          const removeButton = effektivpreisBerechner.querySelector('.removeVergleich');
+          removeButton.addEventListener('click', () => {
+            effektivpreisBerechner.remove();
+            vergleichButton.disabled = false;
+            vergleichButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            updateChart();
+          });
+        }
+        
+        // Event Listener hinzufügen und initial berechnen
+        addCalculatorEventListenersEffektivpreis(effektivpreisBerechner);
+        berechneEffektivpreis(effektivpreisBerechner);
+        
+        return effektivpreisBerechner;
+      }
+      
+      // Funktion zum Erstellen des Mehrkosten-Berechners
+      function createMehrkostenBerechner() {
+        const mehrkostenBerechner = document.createElement('div');
+        mehrkostenBerechner.classList.add('mehrkostenBerechner');
+        
+        const mehrkostenTitle = document.createElement('h2');
+        mehrkostenTitle.classList.add('text-2xl', 'font-bold', 'mb-4', 'text-blue-800');
+        mehrkostenTitle.textContent = '2. Mehrkosten-Berechner';
+        mehrkostenBerechner.appendChild(mehrkostenTitle);
+        
+        // Mehrkosten: Monatsgebühr * Faktor = Zwischenergebnis
+        const mehrkostenMonatsgebuehrDiv = document.createElement('div');
+        mehrkostenMonatsgebuehrDiv.classList.add('mb-4');
+        
+        const mehrkostenMonatsgebuehrLabel = document.createElement('label');
+        mehrkostenMonatsgebuehrLabel.classList.add('block', 'mb-2', 'font-semibold');
+        mehrkostenMonatsgebuehrLabel.textContent = 'Monatsgebühr:';
+        
+        const mehrkostenMonatsgebuehrInputDiv = document.createElement('div');
+        mehrkostenMonatsgebuehrInputDiv.classList.add('flex', 'items-center', 'space-x-2');
+        
+        const mehrkostenMonatsgebuehrInput = document.createElement('input');
+        mehrkostenMonatsgebuehrInput.type = 'number';
+        mehrkostenMonatsgebuehrInput.classList.add('border', 'p-2', 'w-1/3', 'rounded', 'mehrkostenMonatsgebuehr');
+        mehrkostenMonatsgebuehrInput.placeholder = 'Monatsgebühr in €';
+        
+        const multiplySymbol2 = document.createElement('span');
+        multiplySymbol2.textContent = 'x';
+        
+        const multiplikationsfaktorInput = document.createElement('input');
+        multiplikationsfaktorInput.type = 'number';
+        multiplikationsfaktorInput.classList.add('border', 'p-2', 'w-24', 'rounded', 'multiplikationsfaktor');
+        multiplikationsfaktorInput.value = '24';
+        
+        const equalsSymbol3 = document.createElement('span');
+        equalsSymbol3.textContent = '=';
+        
+        const mehrkostenZwischenergebnisSpan = document.createElement('span');
+        mehrkostenZwischenergebnisSpan.classList.add('font-bold', 'mehrkostenZwischenergebnis');
+        mehrkostenZwischenergebnisSpan.textContent = '0.00 €';
+        
+        mehrkostenMonatsgebuehrInputDiv.appendChild(mehrkostenMonatsgebuehrInput);
+        mehrkostenMonatsgebuehrInputDiv.appendChild(multiplySymbol2);
+        mehrkostenMonatsgebuehrInputDiv.appendChild(multiplikationsfaktorInput);
+        mehrkostenMonatsgebuehrInputDiv.appendChild(equalsSymbol3);
+        mehrkostenMonatsgebuehrInputDiv.appendChild(mehrkostenZwischenergebnisSpan);
+        
+        mehrkostenMonatsgebuehrDiv.appendChild(mehrkostenMonatsgebuehrLabel);
+        mehrkostenMonatsgebuehrDiv.appendChild(mehrkostenMonatsgebuehrInputDiv);
+        
+        mehrkostenBerechner.appendChild(mehrkostenMonatsgebuehrDiv);
+        
+        // Mehrkosten: Zwischenergebnis + Barkaufpreis = Zwischensumme
+        const mehrkostenBarkaufpreisDiv = document.createElement('div');
+        mehrkostenBarkaufpreisDiv.classList.add('mb-4');
+        
+        const mehrkostenBarkaufpreisLabel = document.createElement('label');
+        mehrkostenBarkaufpreisLabel.classList.add('block', 'mb-2', 'font-semibold');
+        mehrkostenBarkaufpreisLabel.textContent = 'Zwischenergebnis + Barkaufpreis:';
+        
+        const mehrkostenBarkaufpreisInputDiv = document.createElement('div');
+        mehrkostenBarkaufpreisInputDiv.classList.add('flex', 'items-center', 'space-x-2');
+        
+        const mehrkostenZwischenergebnisInput = document.createElement('input');
+        mehrkostenZwischenergebnisInput.type = 'number';
+        mehrkostenZwischenergebnisInput.classList.add('border', 'p-2', 'w-1/3', 'bg-gray-100', 'rounded', 'mehrkostenZwischenergebnisInput');
+        mehrkostenZwischenergebnisInput.readOnly = true;
+        
+        const plusSymbol2 = document.createElement('span');
+        plusSymbol2.textContent = '+';
+        
+        const barkaufpreisInput = document.createElement('input');
+        barkaufpreisInput.type = 'number';
+        barkaufpreisInput.classList.add('border', 'p-2', 'w-1/3', 'rounded', 'barkaufpreis');
+        barkaufpreisInput.placeholder = 'Barkaufpreis in €';
+        
+        mehrkostenBarkaufpreisInputDiv.appendChild(mehrkostenZwischenergebnisInput);
+        mehrkostenBarkaufpreisInputDiv.appendChild(plusSymbol2);
+        mehrkostenBarkaufpreisInputDiv.appendChild(barkaufpreisInput);
+        
+        mehrkostenBarkaufpreisDiv.appendChild(mehrkostenBarkaufpreisLabel);
+        mehrkostenBarkaufpreisDiv.appendChild(mehrkostenBarkaufpreisInputDiv);
+        
+        mehrkostenBerechner.appendChild(mehrkostenBarkaufpreisDiv);
+        
+        // Ergebnis / Vertragslaufzeit
+        const mehrkostenVertragslaufzeitDiv = document.createElement('div');
+        mehrkostenVertragslaufzeitDiv.classList.add('mb-4');
+        
+        const mehrkostenVertragslaufzeitLabel = document.createElement('label');
+        mehrkostenVertragslaufzeitLabel.classList.add('block', 'mb-2', 'font-semibold');
+        mehrkostenVertragslaufzeitLabel.textContent = 'Ergebnis / Vertragslaufzeit:';
+        
+        const mehrkostenVertragslaufzeitInputDiv = document.createElement('div');
+        mehrkostenVertragslaufzeitInputDiv.classList.add('flex', 'items-center', 'space-x-2');
+        
+        const mehrkostenZwischensummeSpan = document.createElement('span');
+        mehrkostenZwischensummeSpan.classList.add('mehrkostenZwischensumme');
+        mehrkostenZwischensummeSpan.textContent = '0.00 €';
+        
+        const divideSymbol = document.createElement('span');
+        divideSymbol.textContent = '/';
+        
+        const vertragslaufzeitInput = document.createElement('input');
+        vertragslaufzeitInput.type = 'number';
+        vertragslaufzeitInput.classList.add('border', 'p-2', 'w-24', 'rounded', 'vertragslaufzeit');
+        vertragslaufzeitInput.value = '24';
+        
+        mehrkostenVertragslaufzeitInputDiv.appendChild(mehrkostenZwischensummeSpan);
+        mehrkostenVertragslaufzeitInputDiv.appendChild(divideSymbol);
+        mehrkostenVertragslaufzeitInputDiv.appendChild(vertragslaufzeitInput);
+        
+        mehrkostenVertragslaufzeitDiv.appendChild(mehrkostenVertragslaufzeitLabel);
+        mehrkostenVertragslaufzeitDiv.appendChild(mehrkostenVertragslaufzeitInputDiv);
+        
+        mehrkostenBerechner.appendChild(mehrkostenVertragslaufzeitDiv);
+        
+        // Mehrkosten pro Monat
+        const mehrkostenProMonatDiv = document.createElement('div');
+        mehrkostenProMonatDiv.classList.add('mt-6', 'mb-4', 'text-center');
+        
+        const mehrkostenLabel = document.createElement('span');
+        mehrkostenLabel.classList.add('text-lg', 'font-bold');
+        mehrkostenLabel.textContent = 'Mehrkosten pro Monat:';
+        
+        const mehrkostenSpan = document.createElement('span');
+        mehrkostenSpan.classList.add('ml-2', 'text-2xl', 'font-bold', 'text-red-600', 'mehrkosten');
+        mehrkostenSpan.textContent = '0.00 €';
+        
+        const sadEmojiSpan = document.createElement('span');
+        sadEmojiSpan.classList.add('ml-2', 'text-2xl');
+        sadEmojiSpan.textContent = '😢';
+        
+        mehrkostenProMonatDiv.appendChild(mehrkostenLabel);
+        mehrkostenProMonatDiv.appendChild(mehrkostenSpan);
+        mehrkostenProMonatDiv.appendChild(sadEmojiSpan);
+        
+        mehrkostenBerechner.appendChild(mehrkostenProMonatDiv);
+        
+        // Event Listener hinzufügen und initial berechnen
+        addCalculatorEventListenersMehrkosten(mehrkostenBerechner);
+        berechneMehrkosten(mehrkostenBerechner);
+        
+        return mehrkostenBerechner;
+      }
+      
+      // Funktion zum Erstellen eines kompletten Calculators (Haupt oder Vergleich)
+      function createCalculator(isComparison = false) {
+        const calculator = document.createElement('div');
+        calculator.classList.add('calculator', 'p-4', 'bg-white', 'rounded', 'shadow', 'w-full');
+  
+        // Effektivpreis-Berechner hinzufügen
+        const effektivpreisBerechner = createEffektivpreisBerechner(isComparison);
+        calculator.appendChild(effektivpreisBerechner);
+        
+        // Wenn es kein Vergleichsberechner ist, füge den Mehrkosten-Berechner hinzu
+        if (!isComparison) {
+          const mehrkostenBerechner = createMehrkostenBerechner();
+          calculator.appendChild(mehrkostenBerechner);
+        }
+  
+        return calculator;
+      }
+      
+      // Funktion zum Zurücksetzen aller Rechner
+      function resetAllCalculators() {
+        const calculators = document.querySelectorAll('.calculator');
+        calculators.forEach(calculator => {
+          // Effektivpreis-Berechner zurücksetzen
+          const monatsgebuehrInput = calculator.querySelector('.monatsgebuehr');
+          const zuzahlungInput = calculator.querySelector('.zuzahlung');
+          const subtraktionInput = calculator.querySelector('.subtraktion');
+          const gesamtbetragInput = calculator.querySelector('.gesamtbetragInput');
+          const zwischenSummeSpan = calculator.querySelector('.zwischenSumme');
+          const zwischenergebnisSpan = calculator.querySelector('.zwischenergebnis');
+          const effektivpreisSpan = calculator.querySelector('.effektivpreis');
+          
+          monatsgebuehrInput.value = '';
+          zuzahlungInput.value = '';
+          subtraktionInput.value = '';
+          gesamtbetragInput.value = '';
+          zwischenSummeSpan.textContent = '0.00 €';
+          zwischenergebnisSpan.textContent = '0.00 €';
+          effektivpreisSpan.textContent = '0.00 €';
+          
+          // Mehrkosten-Berechner zurücksetzen (wenn vorhanden)
+          const mehrkostenBerechner = calculator.querySelector('.mehrkostenBerechner');
+          if (mehrkostenBerechner) {
+            const mehrkostenMonatsgebuehrInput = mehrkostenBerechner.querySelector('.mehrkostenMonatsgebuehr');
+            const multiplikationsfaktorInput = mehrkostenBerechner.querySelector('.multiplikationsfaktor');
+            const mehrkostenZwischenergebnisInput = mehrkostenBerechner.querySelector('.mehrkostenZwischenergebnisInput');
+            const barkaufpreisInput = mehrkostenBerechner.querySelector('.barkaufpreis');
+            const vertragslaufzeitInput = mehrkostenBerechner.querySelector('.vertragslaufzeit');
+            const mehrkostenZwischensummeSpan = mehrkostenBerechner.querySelector('.mehrkostenZwischensumme');
+            const mehrkostenSpan = mehrkostenBerechner.querySelector('.mehrkosten');
+            
+            mehrkostenMonatsgebuehrInput.value = '';
+            multiplikationsfaktorInput.value = '24';
+            mehrkostenZwischenergebnisInput.value = '';
+            barkaufpreisInput.value = '';
+            vertragslaufzeitInput.value = '24';
+            mehrkostenZwischensummeSpan.textContent = '0.00 €';
+            mehrkostenSpan.textContent = '0.00 €';
+            
+            berechneMehrkosten(mehrkostenBerechner);
+          }
+          
+          berechneEffektivpreis(calculator.querySelector('.effektivpreisBerechner'));
+        });
+      }
+      
+      // Funktion zum Sammeln der Daten und Erstellen des Charts
+      function createChartData() {
+        const labels = [];
+        const effektivpreise = [];
+        const mehrkosten = [];
+        
+        const calculators = document.querySelectorAll('.calculator');
+        calculators.forEach((calc, index) => {
+          // Effektivpreis-Berechner
+          const effektiverBerechner = calc.querySelector('.effektivpreisBerechner');
+          const istVergleich = effektiverBerechner.querySelector('h2').textContent.includes('(Vergleich)');
+          const name = istVergleich ? 'Vergleich' : 'Hauptangebot';
+          labels.push(name);
+          const effektivpreis = parseFloat(effektiverBerechner.querySelector('.effektivpreis').textContent) || 0;
+          effektivpreise.push(effektivpreis);
+          
+          if (!istVergleich) {
+            // Mehrkosten nur für Hauptangebot
+            const mehrkostenBerechner = calc.querySelector('.mehrkostenBerechner');
+            const mehrkostenWert = parseFloat(mehrkostenBerechner.querySelector('.mehrkosten').textContent) || 0;
+            mehrkosten.push(mehrkostenWert);
+          } else {
+            // Keine Mehrkosten für Vergleich
+            mehrkosten.push(null);
+          }
+        });
+        
+        return { labels, effektivpreise, mehrkosten };
+      }
+      
+      // Initial Setup
+      const calculatorsContainer = document.getElementById('calculatorsContainer');
+      const vergleichButton = document.getElementById('vergleichButton');
+      const zuruecksetzenButton = document.getElementById('zuruecksetzenButton');
+      const tabelleButton = document.getElementById('tabelleButton');
+      const chartModal = document.getElementById('chartModal');
+      const closeChartModal = document.getElementById('closeChartModal');
+      const vergleichChartCtx = document.getElementById('vergleichChart').getContext('2d');
+      let vergleichChart;
+      
+      // Vergleich Button Funktionalität
+      vergleichButton.addEventListener('click', () => {
+        // Überprüfen, ob bereits ein Vergleich existiert
+        const existingComparison = calculatorsContainer.querySelector('.effektivpreisBerechner h2');
+        if (existingComparison && existingComparison.textContent.includes('(Vergleich)')) return;
+        
+        // Erstellen des Vergleichsrechners
+        const vergleichCalculator = createCalculator(true);
+        vergleichCalculator.classList.add('comparison');
+        calculatorsContainer.appendChild(vergleichCalculator);
+        
+        // Deaktivieren des Vergleichsbuttons
+        vergleichButton.disabled = true;
+        vergleichButton.classList.add('opacity-50', 'cursor-not-allowed');
+      });
+      
+      // Zurücksetzen Button Funktionalität
+      zuruecksetzenButton.addEventListener('click', () => {
+        resetAllCalculators();
+        
+        // Entfernen des Vergleichsrechners, falls vorhanden
+        const vergleichCalculator = calculatorsContainer.querySelector('.calculator .effektivpreisBerechner h2');
+        if (vergleichCalculator && vergleichCalculator.textContent.includes('(Vergleich)')) {
+          vergleichCalculator.parentElement.parentElement.remove(); // Entfernt den gesamten Calculator
+          vergleichButton.disabled = false;
+          vergleichButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+        
+        updateChart();
+      });
+      
+      // Tabelle Button Funktionalität
+      tabelleButton.addEventListener('click', () => {
+        const { labels, effektivpreise, mehrkosten } = createChartData();
+        
+        // Erstellung des Balkendiagramms
+        if (vergleichChart) {
+          vergleichChart.destroy();
+        }
+        
+        vergleichChart = new Chart(vergleichChartCtx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Effektivpreis pro Monat (€)',
+                data: effektivpreise,
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+              },
+              {
+                label: 'Mehrkosten pro Monat (€)',
+                data: mehrkosten,
+                backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+        
+        // Anzeige des Charts im Modal
+        chartModal.classList.remove('hidden');
+      });
+      
+      // Schließen des Chart Modals
+      closeChartModal.addEventListener('click', () => {
+        chartModal.classList.add('hidden');
+      });
+      
+      // Schließen des Modals durch Klick außerhalb des Inhalts
+      window.addEventListener('click', (event) => {
+        if (event.target === chartModal) {
+          chartModal.classList.add('hidden');
+        }
+      });
+      
+      // Funktion zum Aktualisieren des Charts
+      function updateChart() {
+        const { labels, effektivpreise, mehrkosten } = createChartData();
+        
+        if (vergleichChart) {
+          vergleichChart.data.labels = labels;
+          vergleichChart.data.datasets[0].data = effektivpreise;
+          vergleichChart.data.datasets[1].data = mehrkosten;
+          vergleichChart.update();
+        }
+      }
+      
+      // Funktion zum Hinzufügen von Event Listeners und initialen Berechnungen für vorhandene Berechner
+      function initializeExistingBerechner() {
+        const berechners = document.querySelectorAll('.calculator');
+        berechners.forEach(calculator => {
+          // Effektivpreis-Berechner
+          const effektivpreisBerechner = calculator.querySelector('.effektivpreisBerechner');
+          addCalculatorEventListenersEffektivpreis(effektivpreisBerechner);
+          berechneEffektivpreis(effektivpreisBerechner);
+          
+          // Mehrkosten-Berechner (wenn vorhanden)
+          const mehrkostenBerechner = calculator.querySelector('.mehrkostenBerechner');
+          if (mehrkostenBerechner) {
+            addCalculatorEventListenersMehrkosten(mehrkostenBerechner);
+            berechneMehrkosten(mehrkostenBerechner);
+          }
+        });
+      }
+      
+      // Initial Berechnungen und Event Listener für vorhandene Berechner
+      initializeExistingBerechner();
+    </script>
+  </div>
+</body>
+</html>
